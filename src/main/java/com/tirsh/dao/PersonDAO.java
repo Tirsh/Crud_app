@@ -13,24 +13,6 @@ import java.util.List;
 @Component
 public class PersonDAO {
     private JdbcTemplate jdbcTemplate;
-    private static final String URL = "jdbc:postgresql://localhost:5432/newDb";
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "postgres";
-    private static final Connection connection;
-
-    static {
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public PersonDAO(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }

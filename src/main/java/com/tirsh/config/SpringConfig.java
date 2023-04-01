@@ -4,6 +4,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -14,20 +16,20 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.sql.DataSource;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.logging.Logger;
+import java.util.Objects;
 
 @Configuration
 @ComponentScan("com.tirsh")
 @EnableWebMvc
+@PropertySource("classpath:database.properties")
 public class SpringConfig implements WebMvcConfigurer {
-    final ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
+    private final Environment environment;
 
-    public SpringConfig(ApplicationContext applicationContext) {
+
+    public SpringConfig(ApplicationContext applicationContext, Environment environment) {
         this.applicationContext = applicationContext;
+        this.environment = environment;
     }
 
     @Bean
@@ -56,10 +58,10 @@ public class SpringConfig implements WebMvcConfigurer {
     @Bean
     public DataSource dataSource(){
         DriverManagerDataSource managerDataSource =new DriverManagerDataSource();
-        managerDataSource.setDriverClassName("org.postgresql.Driver");
-        managerDataSource.setUrl("jdbc:postgresql://localhost:5432/newDb");
-        managerDataSource.setUsername("postgres");
-        managerDataSource.setPassword("postgres");
+        managerDataSource.setDriverClassName(Objects.requireNonNull(environment.getProperty("driver")));
+        managerDataSource.setUrl(environment.getProperty("url"));
+        managerDataSource.setUsername(environment.getProperty("user"));
+        managerDataSource.setPassword(environment.getProperty("password"));
         return managerDataSource;
     }
 
