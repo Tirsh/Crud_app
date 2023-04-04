@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Component
@@ -30,12 +31,12 @@ public class PersonDAO {
     }
 
     public Person create(Person person) {
-        jdbcTemplate.update("INSERT INTO person(name, age, email) VALUES (?, ?, ?)", person.getName(), person.getAge(), person.getEmail());
+        jdbcTemplate.update("INSERT INTO person(name, age, email, address) VALUES (?, ?, ?, ?)", person.getName(), person.getAge(), person.getEmail(), person.getAddress());
         return person;
     }
 
     public void update(int id, Person person) {
-        jdbcTemplate.update("UPDATE person SET name=?, age=?, email=? WHERE id=?", person.getName(), person.getAge(), person.getEmail(), id);
+        jdbcTemplate.update("UPDATE person SET name=?, age=?, email=?, address=? WHERE id=?", person.getName(), person.getAge(), person.getEmail(), person.getAddress(), id);
     }
 
     public void delete(int id) {
@@ -46,7 +47,7 @@ public class PersonDAO {
         List<Person> people = create1000People();
         long before = System.currentTimeMillis();
         for (Person person : people) {
-            jdbcTemplate.update("INSERT INTO person(name, age, email) VALUES (?, ?, ?)", person.getName(), person.getAge(), person.getEmail());
+            jdbcTemplate.update("INSERT INTO person(name, age, email, address) VALUES (?, ?, ?, ?)", person.getName(), person.getAge(), person.getEmail(), person.getAddress());
         }
         long after = System.currentTimeMillis();
         System.out.println("Multiple update " + (after - before));
@@ -75,8 +76,14 @@ public class PersonDAO {
     private List<Person> create1000People() {
         List<Person> people = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            people.add(new Person(i, "bot " + i, new Random().nextInt(100), String.format("bot%d@mail.com", i)));
+            people.add(new Person(i, "Bot" + i, new Random().nextInt(3,99), String.format("bot%d@mail.com", i), "Russia, Spb, 123123"));
         }
         return people;
+    }
+
+    public Optional<Person> getByEmail(String email) {
+        return jdbcTemplate.query("SELECT * FROM person WHERE email=?",
+                new Object[]{email}, new BeanPropertyRowMapper<>(Person.class))
+                .stream().findAny();
     }
 }
